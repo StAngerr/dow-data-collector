@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import ArticlesRoutes from "./routes/articles";
+import ScrapersRoutes from "./routes/scrapers";
 import { getArticleByDate } from "./storage/models/article.model";
 import * as dotenv from "dotenv";
 
@@ -27,6 +28,8 @@ app.get("/test", (req, res, next) => {
 });
 
 app.use("/data", ArticlesRoutes);
+
+app.use("/scrappers", ScrapersRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`Example app listening on port ${process.env.PORT}`);
