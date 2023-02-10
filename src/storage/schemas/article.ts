@@ -32,5 +32,12 @@ export const articleSchema = new Schema<Article>(
         return this.where("date").equals(date);
       },
     },
+    virtuals: {
+      id: {
+        get() {
+          return this._id;
+        },
+      },
+    },
   }
 );

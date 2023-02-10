@@ -11,7 +11,7 @@ const getElementsWithTopArticles = () => {};
 export const elementToDataObject = (
   htmlPage: string,
   date: Date = new Date()
-) => {
+): Article[] => {
   const $ = cheerio.load(htmlPage, { decodeEntities: false });
   const important = $(".article_news_list.article_news_bold");
   const top = $(".article_news_list.article_news_red");
@@ -19,8 +19,7 @@ export const elementToDataObject = (
   const importantObj = extractData(important, 4, formattedDate);
   const topObj = extractData(top, 5, formattedDate);
   const result: Article[] = [...importantObj, ...topObj];
-
-  return 1;
+  return result;
 };
 
 export const extractData = (
@@ -37,7 +36,6 @@ export const extractData = (
     const title = aRef.html();
     const url = `${PRAVDA_URL}${aRef.attr("href")}`;
     articles.push({
-      id: idx + 1 + "",
       time,
       title,
       url,

@@ -8,7 +8,7 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: "./config/dev.env" });
 const app = express();
 main().catch((err) => console.log(err));
-
+console.log(dotenv.config({ path: "./config/dev.env" }));
 async function main() {
   await mongoose.connect(process.env.DATABASE_URL);
   console.log("DB connected");
@@ -21,9 +21,9 @@ app.get("/", (req, res, next) => {
 
 app.get("/test", (req, res, next) => {
   console.log("test route");
-  getArticleByDate("date1").then((data) => {
-    res.send(data);
-  });
+  // getArticleByDate("date1").then((data) => {
+  //   res.send(data);
+  // });
   next();
 });
 

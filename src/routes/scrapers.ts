@@ -1,18 +1,19 @@
 import { Router } from "express";
 import { isValidDate } from "../utils/validation.utils";
-import { toDateRange } from "../utils/date.utils";
-import { parse } from "date-fns";
+import { dateToPravdaFormat, toDateRange } from "../utils/date.utils";
+import { format, parse } from "date-fns";
 import { DEFAULT_DATE_FORMAT } from "../constants";
+import { startScrapping } from "../scrappers/pravda/pravda";
+import { generateRandomTimeInMS } from "../utils/general.utils";
+import { processRunScrapper } from "../controllers/pravda.controller";
 
 const router = Router();
 
-router.get('/run', (req, res) => {
-  const {from, to} = req.query;
-  console.log(from, to)
-  if (isValidDate(from), isValidDate(to)) {
-    console.log(toDateRange(parse(from, DEFAULT_DATE_FORMAT, new Date()), parse(to, DEFAULT_DATE_FORMAT, new Date())))
-  }
-  res.send();
-})
+router.get("/run", async (req, res) => {
+  const { from, to } = req.query;
+  processRunScrapper(from, to).then((total) => {
+    res.json(total);
+  });
+});
 
 export default router;
