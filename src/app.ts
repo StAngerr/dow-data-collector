@@ -4,11 +4,12 @@ import ArticlesRoutes from "./routes/articles";
 import ScrapersRoutes from "./routes/scrapers";
 import { getArticleByDate } from "./storage/models/article.model";
 import * as dotenv from "dotenv";
+import { logger } from "./logger/logger";
 
 dotenv.config({ path: "./config/dev.env" });
 const app = express();
 main().catch((err) => console.log(err));
-console.log(dotenv.config({ path: "./config/dev.env" }));
+
 async function main() {
   await mongoose.connect(process.env.DATABASE_URL);
   console.log("DB connected");
@@ -32,6 +33,7 @@ app.use("/data", ArticlesRoutes);
 app.use("/scrappers", ScrapersRoutes);
 
 app.listen(process.env.PORT, () => {
+  logger.info("----App started---");
   console.log(`Example app listening on port ${process.env.PORT}`);
 });
 

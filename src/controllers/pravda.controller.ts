@@ -8,6 +8,11 @@ import iconv from "iconv-lite";
 import { Article, UrlDate } from "../types";
 import { elementToDataObject } from "../scrappers/pravda/pravda-data-processor";
 import { saveAllArticles } from "../storage/models/article.model";
+import {
+  dataScrapFinishLog,
+  dataScrapIterationLog,
+  dataScrapStartLog,
+} from "../logger/pravda.logger";
 
 const requestWrapper = (urlKey: string, time): Promise<Buffer> => {
   return new global.Promise(async (res) => {
@@ -31,32 +36,23 @@ const startRequestsForRange = async (
 ): Promise<Map<Date, Buffer>> => {
   const range = createRangeForDates(from, to);
   const result: Map<Date, Buffer> = new Map();
-  // log
-  console.log("Data will be scrapped for range: ", range);
-  // log
+
+  dataScrapStartLog(range);
   let i = 0;
 
   for (const urlDate of range) {
     const requestDelay = generateRandomTimeInMS(5, 1);
 
-    // log
-    console.log(
-      `Iteration #${i + 1} for date ${format(
-        urlDate.original,
-        DEFAULT_DATE_FORMAT
-      )} request delay ${requestDelay}`
-    );
+    dataScrapIterationLog(i, urlDate.original, requestDelay);
 
     const data = await requestWrapper(
       urlDate.formatted,
       generateRandomTimeInMS(5, 1)
     );
     result.set(urlDate.original, data);
-
-    // log
     i++;
   }
-  console.log("Scrapp finish");
+  dataScrapFinishLog();
   return result;
 };
 
@@ -73,8 +69,6 @@ const htmlToData = (data: Map<Date, Buffer>): Article[] => {
     [] as Article[]
   );
 };
-
-const storeAllToDb = (data: Article[]) => {};
 
 export const processRunScrapper = (
   from: string,

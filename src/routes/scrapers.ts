@@ -9,10 +9,11 @@ import { processRunScrapper } from "../controllers/pravda.controller";
 
 const router = Router();
 
-router.get("/run", async (req, res) => {
+router.get("/run", (req, res) => {
   const { from, to } = req.query;
-  processRunScrapper(from, to).then((total) => {
-    res.json(total);
+  processRunScrapper(from, to);
+  res.json({
+    msg: "process started",
   });
 });
 
