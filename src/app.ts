@@ -1,31 +1,40 @@
-import express from "express";
+import express, { NextFunction } from "express";
 import mongoose from "mongoose";
 import ArticlesRoutes from "./routes/articles";
 import ScrapersRoutes from "./routes/scrapers";
-import { getArticleByDate } from "./storage/models/article.model";
 import * as dotenv from "dotenv";
 import { logger } from "./logger/logger";
+import { everyRequestLogger } from "./logger/generalRoute.logger";
 
 dotenv.config({ path: "./config/dev.env" });
 const app = express();
 main().catch((err) => console.log(err));
 
 async function main() {
-  await mongoose.connect(process.env.DATABASE_URL);
+  await mongoose.connect(process.env.DATABASE_URL, {
+    autoIndex: true,
+  });
   console.log("DB connected");
 }
-
-app.get("/", (req, res, next) => {
-  console.log("Hello World!");
+//every
+app.use((req: Request, res: Response, next: NextFunction) => {
+  everyRequestLogger(req.url);
   next();
 });
 
+// root
+app.use("/", (req: Request, res: Response, next: NextFunction) => {
+  // rootRequestLogger();
+  next();
+});
+console.log(10 + 10);
 app.get("/test", (req, res, next) => {
   console.log("test route");
   // getArticleByDate("date1").then((data) => {
   //   res.send(data);
   // });
-  next();
+  // next();
+  res.json({ test: "ok" });
 });
 
 app.use("/data", ArticlesRoutes);

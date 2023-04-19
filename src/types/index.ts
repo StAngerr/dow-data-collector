@@ -33,3 +33,11 @@ export interface UrlDate {
   original: Date;
   formatted: string;
 }
+
+export enum TaskStatusEnum {
+  success = "success",
+  inProgress = "in progress",
+  failed = "failed",
+}
+
+export type TaskStatus = "success" | "in progress" | "failed";

@@ -49,3 +49,7 @@ export const getArticleByDate = (date: string) => {
 export const removeArticlesForDate = (date: string) => {
   return removeArticlesForDates([date]);
 };
+
+export const getAllUniqDates = () => {
+  return ArticleModel.find().distinct("date");
+};

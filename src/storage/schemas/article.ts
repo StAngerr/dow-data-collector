@@ -13,7 +13,7 @@ interface Article {
 
 export interface ArticleDocument extends Article, Document {}
 
-export const articleSchema = new Schema<Article>(
+const articleSchemaDef = new Schema<Article>(
   {
     title: String,
     url: String,
@@ -41,3 +41,7 @@ export const articleSchema = new Schema<Article>(
     },
   }
 );
+
+articleSchemaDef.index({ date: 1 });
+
+export const articleSchema = articleSchemaDef;
