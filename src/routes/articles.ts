@@ -1,5 +1,3 @@
-import { app } from "../app";
-import fs from "fs";
 import { Router } from "express";
 import {
   getArticleByDate,

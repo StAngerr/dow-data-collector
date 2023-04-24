@@ -20,6 +20,18 @@ export const createScrappingTask = async (
   return task.save();
 };
 
+export const getAllTasks = async () => {
+  return ScrappingTaskModel.find().exec();
+};
+
+export const checkIfTaskRunning = async (): Promise<boolean> => {
+  const runningTask = await ScrappingTaskModel.findOne({
+    status: TaskStatusEnum.inProgress,
+  }).exec();
+
+  return !!runningTask;
+};
+
 export const updateScrappingTaskStatus = async (
   taskId: string,
   status: TaskStatusEnum
