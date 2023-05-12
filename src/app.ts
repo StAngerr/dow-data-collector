@@ -5,9 +5,21 @@ import ScrapersRoutes from "./routes/scrapers";
 import * as dotenv from "dotenv";
 import { logger } from "./logger/logger";
 import { everyRequestLogger } from "./logger/generalRoute.logger";
+import * as http from "http";
+import connectionHandler from "./socket-handlers/connection";
+import { scrappingTasks } from "./socket-handlers/scrapping-tasks";
+import { Server } from "socket.io";
 
 dotenv.config({ path: "./config/dev.env" });
 const app = express();
+
+const server = http.createServer(app);
+const io = new Server(server);
+
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/index.html");
+});
+
 main().catch((err) => console.log(err));
 
 async function main() {
@@ -16,10 +28,17 @@ async function main() {
   });
   console.log("DB connected");
 }
+
 //every
 app.use((req: Request, res: Response, next: NextFunction) => {
   everyRequestLogger(req.url);
   next();
+});
+
+io.on("connection", (socket) => {
+  console.log("connection attempt");
+  // connectionHandler(socket);
+  // scrappingTasks(io, socket);
 });
 
 // root
@@ -27,7 +46,7 @@ app.use("/", (req: Request, res: Response, next: NextFunction) => {
   // rootRequestLogger();
   next();
 });
-console.log(10 + 10);
+
 app.get("/test", (req, res, next) => {
   console.log("test route");
   // getArticleByDate("date1").then((data) => {
@@ -41,7 +60,7 @@ app.use("/data", ArticlesRoutes);
 
 app.use("/scrappers", ScrapersRoutes);
 
-app.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, () => {
   logger.info("----App started---");
   console.log(`Example app listening on port ${process.env.PORT}`);
 });
