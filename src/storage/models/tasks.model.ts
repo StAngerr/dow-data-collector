@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+  import mongoose from "mongoose";
 import { scrappingTaskSchema } from "../schemas/ScrappingTask";
 import { TaskStatusEnum } from "../../types";
 

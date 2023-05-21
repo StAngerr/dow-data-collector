@@ -6,15 +6,17 @@ import * as dotenv from "dotenv";
 import { logger } from "./logger/logger";
 import { everyRequestLogger } from "./logger/generalRoute.logger";
 import * as http from "http";
-import connectionHandler from "./socket-handlers/connection";
-import { scrappingTasks } from "./socket-handlers/scrapping-tasks";
 import { Server } from "socket.io";
-
+import cors from "cors";
 dotenv.config({ path: "./config/dev.env" });
 const app = express();
 
 const server = http.createServer(app);
 const io = new Server(server);
+
+app.use(cors({
+  origin: 'http://localhost:3000'
+}));
 
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
