@@ -8,15 +8,18 @@ import { everyRequestLogger } from "./logger/generalRoute.logger";
 import * as http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
+import { scrappingTasks } from "./socket-handlers/scrapping-tasks";
 dotenv.config({ path: "./config/dev.env" });
 const app = express();
 
 const server = http.createServer(app);
 const io = new Server(server);
 
-app.use(cors({
-  origin: 'http://localhost:3000'
-}));
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+  })
+);
 
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
@@ -40,7 +43,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 io.on("connection", (socket) => {
   console.log("connection attempt");
   // connectionHandler(socket);
-  // scrappingTasks(io, socket);
+  scrappingTasks(io, socket);
 });
 
 // root

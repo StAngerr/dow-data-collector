@@ -4,4 +4,8 @@ export const scrappingTasks = (io, socket) => {
 
     io.emit("chat message", msg);
   });
+
+  socket.emit();
 };
+
+export const scrappingTaskSendEvent = (io, msg) => io.emit(`scrapping-${msg}`);

@@ -6,7 +6,7 @@ import { checkIfTaskRunning, getAllTasks } from "../storage/models/tasks.model";
 
 const router = Router();
 
-  router.get("/run", async (req, res) => {
+router.get("/run", async (req, res) => {
   const { from, to } = req.query;
   const hasRunningTask = await checkIfTaskRunning();
   if (!hasRunningTask) {
