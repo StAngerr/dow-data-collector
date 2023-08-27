@@ -1,6 +1,7 @@
 import { isValidDate } from "../utils/validation.utils";
 import { dateToPravdaFormat, toDateRange } from "../utils/date.utils";
 import { format, parse } from "date-fns";
+import { Document } from "mongoose";
 import { DEFAULT_DATE_FORMAT } from "../constants";
 import { generateRandomTimeInMS, mapAMap } from "../utils/general.utils";
 import { startScrapping } from "../scrappers/pravda/pravda";
@@ -19,6 +20,15 @@ import {
   updateScrappingTaskStatus,
 } from "../storage/models/tasks.model";
 import { saveAllArticles } from "../storage/models/article.model";
+import {
+  emitTaskEnded,
+  emitTaskFailed,
+  emitTaskStarted,
+} from "../socket-handlers/scrapping-tasks";
+import {
+  ScrappingTask,
+  ScrappingTaskDocument,
+} from "../storage/schemas/ScrappingTask";
 
 const requestWrapper = (urlKey: string, time): Promise<Buffer> => {
   return new global.Promise(async (res) => {
@@ -76,52 +86,62 @@ export const htmlToData = (data: Map<Date, Buffer>): Article[] => {
   );
 };
 
-export const processRunScrapper = (
+export const createNewWorker = (from, to) =>
+  new Worker("./src/workers/pravda.worker.ts", {
+    workerData: {
+      from,
+      to,
+    },
+  });
+
+export const errorCb = (e, taskId: string, io) => {
+  console.log(`task error ${taskId}`, e);
+  emitTaskFailed(io, e);
+  updateScrappingTaskStatus(taskId, TaskStatusEnum.failed);
+};
+
+export const messageCb = (worker, message, from, to, taskId, io) => {
+  if (message.type === "task-complete") {
+    worker.terminate();
+    emitTaskEnded(io, taskId);
+    saveAllArticles(
+      message.data,
+      createRangeForDates(from, to).map((dateObj) =>
+        format(dateObj.original, DEFAULT_DATE_FORMAT)
+      )
+    ).then(() => updateScrappingTaskStatus(taskId, TaskStatusEnum.success));
+  }
+};
+
+export const processRunScrapper = async (
   from: string,
-  to: string
-): Promise<number> => {
+  to: string,
+  io: WebSocket
+) => {
   if (!(isValidDate(from) && isValidDate(to))) {
+    // TODO: why here global ?
     return global.Promise.reject("Invalid range");
   }
 
   if (isMainThread) {
     const taskId = uuidv4();
-    const worker = new Worker("./src/workers/pravda.worker.ts", {
-      workerData: {
-        from,
-        to,
-      },
-    });
-    createScrappingTask(taskId, from, to);
+
+    emitTaskStarted(io, taskId);
+
+    const worker = createNewWorker(from, to);
+
+    const newTask: Document<ScrappingTask> = await createScrappingTask(
+      taskId,
+      from,
+      to
+    );
     // save taskId to db
-    worker.on("error", (e) => {
-      // update task status to error
-      console.log(`task error ${taskId}`, e);
-      updateScrappingTaskStatus(taskId, TaskStatusEnum.failed);
-    });
+    worker.on("error", (e) => () => errorCb(e, taskId, io));
 
-    worker.on("message", (message) => {
-      if (message.type === "task-complete") {
-        worker.terminate();
-        console.log(`task complete ${taskId}`);
-        saveAllArticles(
-          message.data,
-          createRangeForDates(from, to).map((dateObj) =>
-            format(dateObj.original, DEFAULT_DATE_FORMAT)
-          )
-        ).then(() => updateScrappingTaskStatus(taskId, TaskStatusEnum.success));
-      }
-      // update task status to complete
-    });
+    worker.on("message", (message) =>
+      messageCb(worker, message, from, to, taskId, io)
+    );
+
+    return newTask.toJSON();
   }
-
-  // return startRequestsForRange(from, to).then((data) => {
-  //   const extractedData = htmlToData(data);
-  //   return saveAllArticles(
-  //     extractedData,
-  //     createRangeForDates(from, to).map((dateObj) =>
-  //       format(dateObj.original, DEFAULT_DATE_FORMAT)
-  //     )
-  //   ).then(() => extractedData.length);
-  // });
 };

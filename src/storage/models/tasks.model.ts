@@ -1,5 +1,5 @@
-  import mongoose from "mongoose";
-import { scrappingTaskSchema } from "../schemas/ScrappingTask";
+import mongoose, { Document } from "mongoose";
+import { ScrappingTask, scrappingTaskSchema } from "../schemas/ScrappingTask";
 import { TaskStatusEnum } from "../../types";
 
 const ScrappingTaskModel = mongoose.model("ScrappingTask", scrappingTaskSchema);
@@ -8,7 +8,7 @@ export const createScrappingTask = async (
   taskId: string,
   from: string,
   to: string
-) => {
+): Promise<Document<ScrappingTask>> => {
   const task = new ScrappingTaskModel({
     id: taskId,
     from,
@@ -17,6 +17,8 @@ export const createScrappingTask = async (
     startedAt: new Date(),
   });
 
+  // TODO fix issue with ts
+  // @ts-ignore
   return task.save();
 };
 

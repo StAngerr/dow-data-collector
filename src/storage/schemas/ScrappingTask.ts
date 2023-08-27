@@ -1,5 +1,5 @@
 import { TaskStatusEnum } from "../../types";
-import { Schema } from "mongoose";
+import { Schema, Document } from "mongoose";
 
 export interface ScrappingTask {
   id: string;
@@ -9,9 +9,9 @@ export interface ScrappingTask {
   startedAt: Date;
 }
 
-export interface ScrappingTaskDocument extends ScrappingTask, Document {}
+export interface ScrappingTaskDocument extends Document<ScrappingTask> {}
 
-export const scrappingTaskSchema = new Schema<ScrappingTask>({
+const scrappingTaskSchema = new Schema<ScrappingTask>({
   id: {
     type: String,
     required: true,
@@ -25,3 +25,7 @@ export const scrappingTaskSchema = new Schema<ScrappingTask>({
   },
   startedAt: Date,
 });
+// TODO find way to get rid of mongo props in objects
+scrappingTaskSchema.set("strict", "throw");
+
+export { scrappingTaskSchema };

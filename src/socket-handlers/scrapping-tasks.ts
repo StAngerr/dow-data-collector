@@ -1,11 +1,10 @@
-export const scrappingTasks = (io, socket) => {
-  socket.on("chat message", (msg) => {
-    console.log("message: " + msg);
+import { MESSAGES } from "../constants/socket.constants";
 
-    io.emit("chat message", msg);
-  });
+export const PREFIX = "scrapping-";
 
-  socket.emit();
-};
-
-export const scrappingTaskSendEvent = (io, msg) => io.emit(`scrapping-${msg}`);
+export const emitTaskStarted = (io, taskId: string) =>
+  io.emit(PREFIX + MESSAGES.task.start, taskId);
+export const emitTaskEnded = (io, taskId: string) =>
+  io.emit(PREFIX + MESSAGES.task.success, taskId);
+export const emitTaskFailed = (io, data) =>
+  io.emit(PREFIX + MESSAGES.task.failed, data);

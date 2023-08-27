@@ -9,14 +9,18 @@ const router = Router();
 router.get("/run", async (req, res) => {
   const { from, to } = req.query;
   const hasRunningTask = await checkIfTaskRunning();
-  if (!hasRunningTask) {
+
+  if (hasRunningTask) {
     res.status(409).json({
       msg: "process already running",
     });
+    return;
   }
-  processRunScrapper(from, to);
-  res.status(202).json({
-    msg: "process started",
+
+  const io = req.app.get("io");
+
+  processRunScrapper(from, to, io).then((data) => {
+    res.status(202).json(data);
   });
 });
 
