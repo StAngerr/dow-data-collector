@@ -1,6 +1,7 @@
 // 5 highest priority
 import { ArticleDocument } from "../storage/schemas/article";
 import { da } from "date-fns/locale";
+import { tagToDTOFormat } from "../utils/tsgs.utils";
 
 export type ImportanceLevel = 1 | 2 | 3 | 4 | 5;
 
@@ -19,11 +20,14 @@ export interface Article {
   source: DataSourcesEnum;
 }
 
+export type ArticleDTO = Article & { tags: string[] };
+
 export class ArticleCl {
   static fromModelToResponseObj(model: ArticleDocument) {
-    const { _id, ...rest } = model.toObject();
+    const { _id, tags, ...rest } = model.toObject();
     return {
       id: _id.toString(),
+      tags: tags.map(tagToDTOFormat),
       ...rest,
     };
   }

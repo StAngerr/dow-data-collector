@@ -1,27 +1,18 @@
 import { Schema, Document } from "mongoose";
 
 export interface Tag {
-  id: string;
+  _id: string;
   label: string;
 }
 
 export interface TagDocument extends Document {}
 
-const TagSchemaDef = new Schema<Tag>(
-  {
-    // @ts-ignore
-    _id: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    label: String,
+const TagSchemaDef = new Schema<Tag>({
+  label: {
+    type: String,
+    unique: true,
   },
-  {
-    _id: false,
-    id: true,
-  }
-);
+});
 
 TagSchemaDef.set("toJSON", {
   transform: (doc, ret) => {

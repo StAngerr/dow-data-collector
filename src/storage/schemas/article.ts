@@ -1,5 +1,6 @@
 import { DataSourcesEnum, ImportanceLevel } from "../../types";
-import { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
+import { Tag } from "./tag";
 
 interface Article {
   title: string;
@@ -9,6 +10,7 @@ interface Article {
   date: string;
   level: ImportanceLevel;
   source: DataSourcesEnum;
+  tags: Tag[];
 }
 
 export interface ArticleDocument extends Article, Document {}
@@ -25,6 +27,12 @@ const articleSchemaDef = new Schema<Article>(
       type: String,
       enum: DataSourcesEnum,
     },
+    tags: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Tag",
+      },
+    ],
   },
   {
     query: {
@@ -32,16 +40,19 @@ const articleSchemaDef = new Schema<Article>(
         return this.where("date").equals(date);
       },
     },
-    virtuals: {
-      id: {
-        get() {
-          return this._id;
-        },
-      },
-    },
   }
 );
 
 articleSchemaDef.index({ date: 1 });
+
+export const tagsTransform = (doc, ret) => {
+  ret.id = ret._id;
+  delete ret._id;
+  delete ret.__v;
+};
+
+articleSchemaDef.set("toJSON", {
+  transform: tagsTransform,
+});
 
 export const articleSchema = articleSchemaDef;
