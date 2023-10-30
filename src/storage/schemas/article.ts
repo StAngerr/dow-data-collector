@@ -8,6 +8,7 @@ interface Article {
   fullDate?: string;
   time: string;
   date: string;
+  visible: boolean;
   level: ImportanceLevel;
   source: DataSourcesEnum;
   tags: Tag[];
@@ -27,6 +28,10 @@ const articleSchemaDef = new Schema<Article>(
       type: String,
       enum: DataSourcesEnum,
     },
+    visible: {
+      type: Boolean,
+      default: true,
+    },
     tags: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -36,8 +41,14 @@ const articleSchemaDef = new Schema<Article>(
   },
   {
     query: {
-      allByDate(date: string) {
-        return this.where("date").equals(date);
+      allByDate(date: string, visibleOnly = false) {
+        let query = this.where("date").equals(date);
+
+        if (visibleOnly) {
+          query = query.where("visible").equals(true);
+        }
+
+        return query;
       },
     },
   }

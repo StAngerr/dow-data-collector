@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  getAllArticles,
   getArticleByDate,
   removeArticlesForDate,
   updateArticle,
@@ -7,10 +8,17 @@ import {
 import { ArticleDTO } from "../types";
 const router = Router();
 
+router.get("/articles", (req, res) => {
+  const { query } = req.query;
+
+  getAllArticles().then((d) => res.json(d));
+});
+
 router.get("/articles/:date", (req, res) => {
   const desiredDate = req.params.date;
+  const { visibleOnly } = req.query;
 
-  getArticleByDate(desiredDate).then((data) => {
+  getArticleByDate(desiredDate, visibleOnly).then((data) => {
     res.send(data);
   });
 });

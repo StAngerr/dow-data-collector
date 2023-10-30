@@ -9,10 +9,8 @@ import { InsertManyResult } from "mongodb";
 
 const ArticleModel = mongoose.model<ArticleDocument>("Article", articleSchema);
 
-export const saveArticle = (article: Article) => {
-  const newArticle = new ArticleModel(article);
-
-  return newArticle.save();
+export const getAllArticles = () => {
+  return ArticleModel.find();
 };
 
 export const saveAllArticles = (articles: Article[], dates: string[]) => {
@@ -26,10 +24,6 @@ export const saveAllArticles = (articles: Article[], dates: string[]) => {
   );
 };
 
-export const saveBatchOfArticles = (articles: Article[]) => {
-  return ArticleModel.insertMany(articles);
-};
-
 export const removeArticlesForDates = (dates: string[]) => {
   return ArticleModel.deleteMany({ date: { $in: dates } }).then((result) => {
     console.log("Articles removed: ", result.deletedCount);
@@ -37,11 +31,11 @@ export const removeArticlesForDates = (dates: string[]) => {
   });
 };
 
-export const getArticleByDate = (date: string) => {
+export const getArticleByDate = (date: string, visibleOnly = false) => {
   return (
     ArticleModel.find()
       // @ts-ignore
-      .allByDate(date)
+      .allByDate(date, visibleOnly)
       .populate("tags")
       .exec()
       .then((articles) =>
@@ -59,8 +53,6 @@ export const getAllUniqDates = () => {
 };
 
 export const updateArticle = (article: ArticleDTO) => {
-  const test = mongoose.Types.ObjectId;
-
   return ArticleModel.findOneAndUpdate(
     { _id: article.id },
     {
