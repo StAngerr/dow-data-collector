@@ -6,7 +6,7 @@ import {
   isSameDay,
   parse,
 } from "date-fns";
-import { START_DATE } from "../constants";
+import { DEFAULT_DATE_FORMAT, START_DATE } from "../constants";
 
 export const toDateRange = (start: Date, end: Date) => {
   console.log("start", start);
@@ -32,3 +32,6 @@ export const getTotalDaysTillToday = (): number => {
 
   return differenceInDays(today, startDate);
 };
+
+export const formatFinDateKeys = (date: string) =>
+  format(parse(date, "dd.MM.yyyy", new Date()), DEFAULT_DATE_FORMAT);

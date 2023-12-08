@@ -72,13 +72,16 @@ export const startRequestsForRange = async (
   return result;
 };
 
-export const decodeHtml = (htmlBuffer: Buffer): string => {
-  return iconv.decode(htmlBuffer, "win1251");
+export const decodeHtml = (htmlBuffer: Buffer, encoding = "utf-8"): string => {
+  return iconv.decode(htmlBuffer, encoding);
 };
 
 export const htmlToData = (data: Map<Date, Buffer>): Article[] => {
   return Array.from(
-    mapAMap(data, ([key, value]: [Date, Buffer]) => [key, decodeHtml(value)])
+    mapAMap(data, ([key, value]: [Date, Buffer]) => [
+      key,
+      decodeHtml(value, "win1251"),
+    ])
   ).reduce(
     (acc: Article[], [date, html]: [Date, string]) =>
       acc.concat(elementToDataObject(html, date)),

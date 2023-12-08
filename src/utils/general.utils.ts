@@ -9,3 +9,7 @@ export const mapAMap = <K, V, T = void, S = void>(
   const newEntries = Array.from(map, cb);
   return new Map(newEntries);
 };
+
+export const isNumber = (value) => {
+  return typeof value === "number" && isFinite(value);
+};

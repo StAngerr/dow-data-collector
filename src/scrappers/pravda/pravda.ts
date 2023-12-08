@@ -1,8 +1,6 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import { PRAVDA_NEWS_FEED_URL } from "../../constants";
-import iconv from "iconv-lite";
-import { elementToDataObject } from "./pravda-data-processor";
-import { Promise } from "mongoose";
+
 export const startScrapping = (dayKey: string) => {
   const url = PRAVDA_NEWS_FEED_URL.replace(":day", dayKey);
   console.log("Requesting URL: ", url);
@@ -17,12 +15,6 @@ export const startScrapping = (dayKey: string) => {
         },
       })
       .then((resp) => resp.data as Buffer)
-      // .then((resp) => {
-      //   const decodedHTML = iconv.decode(resp.data, "win1251");
-      //   const date = new Date();
-      //   // elementToDataObject(decodedHTML, date);
-      //   return Promise.resolve([date]);
-      // })
       // TODO:
       .catch((e) => {
         console.log(e);
