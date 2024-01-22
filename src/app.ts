@@ -7,7 +7,6 @@ import * as dotenv from "dotenv";
 import { logger } from "./logger/logger";
 import { everyRequestLogger } from "./logger/generalRoute.logger";
 import * as http from "http";
-import { Server } from "socket.io";
 import cors from "cors";
 import socketIOInit from "./socket-handlers";
 import bodyParser from "body-parser";

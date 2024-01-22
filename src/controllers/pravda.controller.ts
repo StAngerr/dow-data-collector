@@ -80,7 +80,7 @@ export const htmlToData = (data: Map<Date, Buffer>): Article[] => {
   return Array.from(
     mapAMap(data, ([key, value]: [Date, Buffer]) => [
       key,
-      decodeHtml(value, "win1251"),
+      decodeHtml(value),
     ])
   ).reduce(
     (acc: Article[], [date, html]: [Date, string]) =>
