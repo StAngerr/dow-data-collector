@@ -10,11 +10,17 @@ import * as http from "http";
 import cors from "cors";
 import socketIOInit from "./socket-handlers";
 import bodyParser from "body-parser";
+
 dotenv.config({ path: "./config/dev.env" });
 const app = express();
 
+
 const server = http.createServer(app);
 const io = socketIOInit(server);
+
+// TODO: figureout how this can be fixed. Issue that localhost cant relolve SSL sertificate
+// Ignore SSL certificate validation (for debugging purposes)
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 app.set("io", io);
 
@@ -27,9 +33,9 @@ app.use(
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
-});
+// app.get("/", (req, res) => {
+//   res.sendFile(__dirname + "/index.html");
+// });
 
 main().catch((err) => console.log(err));
 
@@ -53,8 +59,15 @@ app.use("/", (req: Request, res: Response, next: NextFunction) => {
 });
 
 app.get("/test", (req, res, next) => {
-  res.json({ test: "ok" });
+
+  // fetch('https://www.pravda.com.ua/news/date_11012024').then((resp) => {
+  //   resp.text().then((data) => res.send(data))
+  // }).catch((e) => res.json(e))
+  // res.json({ test: "ok" });
 });
+
+
+
 
 app.use("/data", ArticlesRoutes);
 app.use("/data", TagsRoutes);
