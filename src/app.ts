@@ -10,6 +10,7 @@ import * as http from "http";
 import cors from "cors";
 import socketIOInit from "./socket-handlers";
 import bodyParser from "body-parser";
+import LossStats from "./routes/loss-stats";
 
 dotenv.config({ path: "./config/dev.env" });
 const app = express();
@@ -71,6 +72,7 @@ app.get("/test", (req, res, next) => {
 
 app.use("/data", ArticlesRoutes);
 app.use("/data", TagsRoutes);
+app.use("/data", LossStats);
 
 app.use("/scrappers", ScrapersRoutes);
 

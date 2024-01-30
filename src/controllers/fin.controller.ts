@@ -1,16 +1,16 @@
 import { readFinPage } from "../scrappers/fin/fin";
-import { parse } from "date-fns";
 import cheerio from "cheerio";
 import { decodeHtml } from "./pravda.controller";
 import * as fs from "fs";
-import TagElement = cheerio.TagElement;
-import { isNumber } from "../utils/general.utils";
+import { generateRandomTimeInMS, isNumber } from "../utils/general.utils";
 import { UA_TO_US_KEY_LOSS_MAPPING } from "../constants/db-general";
 import { formatFinDateKeys } from "../utils/date.utils";
 import { saveAllStats } from "../storage/models/loss-stats.model";
 import { LossStats } from "../storage/schemas/loss-stats";
+import { parse } from "date-fns";
+import { DEFAULT_DATE_FORMAT } from "../constants";
 
-export const runFinScrapper = async (date) => {
+export const runFinScrapper = async (date: string) => {
   const page = await getPage(date);
   const daysElements = parseToHtml(page);
   const data = htmlToData(daysElements);
@@ -35,17 +35,18 @@ export const dataToDbFormat = (data): LossStats[] => {
     .map((dateKey: string) => {
       const dateObj = data.mapped[dateKey];
       const categories = Object.keys(dateObj);
-      return categories.map((cat) => ({ date: dateKey, ...dateObj[cat] }));
+      return categories.map((cat) => ({
+        date: parse(dateKey, DEFAULT_DATE_FORMAT, new Date()),
+        ...dateObj[cat],
+      }));
     })
     .flat();
 };
 
 export const getPage = async (date: string): Promise<string> => {
-  const rawData = await readFinPage(parse(date, "yyyy-MM-dd", new Date()));
+  const rawData = await readFinPage(date);
   const decoded = decodeHtml(rawData);
 
-  // TODO remove for testing
-  fs.writeFileSync("./fin.html", decoded, { encoding: "utf8", flag: "w" });
   return decoded;
 };
 
@@ -102,4 +103,18 @@ export const htmlToData = (data: cheerio.Cheerio) => {
     original: originalMap,
     mapped: resultMap,
   };
+};
+
+export const delayedFinRequest = (month: string) => {
+  return new Promise((res, rej) => {
+    const delay = generateRandomTimeInMS(15);
+
+    setTimeout(async () => {
+      console.log("FIn ", " new request for ", month);
+      console.log("FIn ", " delay ", delay);
+      const data = await runFinScrapper(month);
+
+      res(data);
+    }, delay);
+  });
 };

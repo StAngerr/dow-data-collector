@@ -3,7 +3,7 @@ import { LossType } from "../../types/loss-stats";
 
 export interface LossStats {
   id: string;
-  date: string;
+  date: Date;
   type: LossType;
   total: number;
   change: number;
@@ -17,7 +17,7 @@ export const OriginalDataSchema = new Schema<LossStats>({
 });
 
 export const LossStatsSchema = new Schema<LossStats>({
-  date: String,
+  date: Date,
   type: String,
   total: Number,
   change: Number,
